@@ -8,6 +8,8 @@ def timestables():
         if x.isdigit():
             x = int(x)
             break
+        else:
+            print("Number must be an integer with no spaces")
 
 
     while True:
