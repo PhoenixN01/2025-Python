@@ -30,7 +30,7 @@ def reveal_Letter(letter):
         finishGame("Win")
     return
 
-def check_guess(guess):
+def check_guess(guess, lives):
     if len(guess) > 1:
         if guess == word:
             finishGame("Win")
@@ -51,19 +51,16 @@ def check_guess(guess):
             if lives > 0:
                 print("That letter is incorrect, you have ", lives, " lives remaining.")
                 wrongLetters.append(guess)
-                print("Wrong Letters: ", *wrongLetters, sep=", ")
+                print("Wrong Letters: ", *wrongLetters, sep=" ")
             else:
                 finishGame("Lose")
 
-def guess():
+def guess(lives):
     print("""To begin the game, Start by guessing a letter or word.
           """)
     while status != 1:
-        while True:
-            guess = input("Guess: ")
-            return
-
-        #check_guess(guess)
-guess()
+        guess = input("Guess: ")
+        check_guess(guess, lives)
+guess(lives)
 
     
