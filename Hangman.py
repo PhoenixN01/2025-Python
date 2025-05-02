@@ -16,7 +16,7 @@ def finishGame(Result):
         print("""Congratulations! You guessed the word. 
               Thanks for playing Hangman.""")
     elif Result == "Lose":
-        print("You've run out of guesses. The word you were trying to get was: '", word, "'. Thanks for playing Hangman.")
+        print("You've run out of guesses. The word you were trying to get was: '", word, "'. Thanks for playing Hangman.", sep="")
 
 def reveal_Letter(letter):
     score = 0
@@ -29,6 +29,10 @@ def reveal_Letter(letter):
     if score == len(word):
         finishGame("Win")
     return
+
+def displayMan(lives):
+    manTemplate = [" _____", "|     ", "|     ", "|     ", "|     ", "|     ", "|     ", "|_____"]
+    lifeChange = ["|  |  ", "|  O  ", "| /   ", "", "| /|\ ", "| / \ "]
 
 def check_guess(guess, lives):
     if len(guess) > 1:
@@ -50,17 +54,25 @@ def check_guess(guess, lives):
             lives -= 1
             if lives > 0:
                 print("That letter is incorrect, you have ", lives, " lives remaining.")
-                wrongLetters.append(guess)
+                if guess not in wrongLetters:
+                    wrongLetters.append(guess)
                 print("Wrong Letters: ", *wrongLetters, sep=" ")
             else:
                 finishGame("Lose")
+    return lives
 
 def guess(lives):
     print("""To begin the game, Start by guessing a letter or word.
           """)
     while status != 1:
-        guess = input("Guess: ")
-        check_guess(guess, lives)
+        while True:
+            guess = input("Guess: ")
+            if guess.isalpha():
+                break
+            else:
+                print("Guess must only contain alphabetical letters")
+        lives = check_guess(guess, lives)
+
 guess(lives)
 
     
