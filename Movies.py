@@ -41,7 +41,11 @@ users = {
     "Bo": {"password": "bo", "balance": 312.75},
 }
 
-def login(users):
+current_user = ""
+logged_in = False
+
+
+def login(users, current_user, logged_in):
     login_attempts = 0
     yes_answers = ["y", "yes", "yeah", "yep"]
     print("Please Enter Username and Password to begin.")
@@ -61,28 +65,41 @@ def login(users):
                 print("You have entered your password incorrectly 5 times")
                 change_user = input("Would you like to change users?")
                 if change_user.lower() in yes_answers:
-                    login(users)
+                    login(users, current_user, logged_in)
                     break
                 else:
                     print("Goodbye.")
-                    return
+                    logged_in = False
+                    return users, current_user, logged_in
             elif password_attempts < 5:
-                print("Welcome")
+                current_user = username
+                print("Welcome ", current_user)
+                logged_in = True
                 break
         else:
             print("Username Not Found")
             login_attempts += 1
     if login_attempts == 5:
-        print("Username Not Found.")
-        add_user = input("Would you like to create an account instead?")
-        if add_user.lower() in yes_answers:
-            # signup()
-            print("signup")
-    return
+        print("Login attempt Timeout. Please try again later")
+    return users, current_user, logged_in
 
-            
+def search_movies(target, movies=dict):
+    title = "title"
+    for i in movies:
+        if movies[i][title] == target:
+            return True
+
+def admin_account(users, movies, current_user):
+    if current_user == "admin":
+        tasks = ["Add Movie [0]", "Edit Movie [1]", "View User details [2]" "Edit User details [3]", "Return to Main Menu [4]"]
+        print("Admin Tasks: ")
+        for i in tasks:
+            print(i)
+        current_task = input("Task id: ")
         
         
-                
+    else:
+        print("You do not have permission to access this account")
+        return
 
-login(users)
+users, current_user, logged_in = login(users, current_user, logged_in)
