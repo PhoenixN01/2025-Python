@@ -77,7 +77,7 @@ def login(users):
         add_user = input("Would you like to create an account instead?")
         if add_user.lower() in yes_answers:
             # signup()
-            return
+            print("signup")
     return
 
             
