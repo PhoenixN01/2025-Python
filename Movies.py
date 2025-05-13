@@ -105,26 +105,19 @@ def add_movie(movies=dict):
         while True:
             confirmation = input("Cofirm? (y/n): ")
             if confirmation == "y":
-                movies[title] = {"title": title, "genre": genre, "duration": duration, "seats": seats, "ratings": {}, "price": price}
-                print()
-                print("Returning to the admin menu now. ")
-                print()
+                movies[title] = {"title": title, "genre": genre, "duration": duration, "seats": seats, "ratings(Empty)": {}, "price": price}
                 return movies
             elif confirmation == "n":
                 retry = input("Would you like to try again? (y/n): ")
                 if retry == "y":
                     break
                 elif retry == "n":
-                    print()
-                    print("Returning to the admin menu now. ")
-                    print()
                     return movies
                 else:
                     print("Invalid Response")
             else:
                 print("Invalid Response")
 
-    
 def edit_movie(movies=dict):
     count = 0
     while True:
@@ -154,9 +147,6 @@ def edit_movie(movies=dict):
                         change = input(f"What would you like {change_id} to be? ")
                         movies[target][change_id] = change
                         print("Change Successful")
-                        print()
-                        print("Returning to the Admin Menu Now.")
-                        print()
                         return movies
                     else:
                         print("Item Not Found")
@@ -170,9 +160,6 @@ def edit_movie(movies=dict):
         if count == 3:
             exit = input("Would you like to return to the admin menu? (y/n)")
             if exit == "y":
-                print()
-                print("Returning to the Admin Menu Now.")
-                print()
                 return movies
             elif exit == "n":
                 count = 0
@@ -180,10 +167,33 @@ def edit_movie(movies=dict):
             else:
                 print("Invalid Response")
 
+def view_users(users=dict):
+    print("Here are the current list of users")
+    user_display = list(users.keys())
+    user_display.pop(0)
+    for user in user_display:
+        print(user, ": ", users[user], sep="")
+    goto_edit_users = input("Would you like to edit this list? (y/n)")
+    if goto_edit_users == "y":
+        users = edit_users(users)
+        return users
+    else:
+        return users
 
-# def view_users(users=dict):
+def edit_users(users=dict):
+    while True:
+        user = input("Which user would you like to edit: ")
+        user_info = users[user]
+        if user in users.keys():
+            for item in user_info.keys():
+                print(item, ": ", )
+            while True:
+                change_id = input("What would you like to edit on ", user, "'s profile? ", sep="")
+                if change_id in user_info.keys():
+                    change = input()
+        else:
+            print("User Not Found")
 
-# def edit_users(users=dict):
 
 def admin_account(users, movies, current_user):
     if current_user == "admin":
@@ -206,12 +216,24 @@ def admin_account(users, movies, current_user):
 
             if current_task == 0:
                 movies = add_movie(movies)
+                print()
+                print("Returning to the Admin Menu Now.")
+                print()
             elif current_task == 1:
                 movies = edit_movie(movies)
-            # elif current_task == 2:
-                # users = view_users(users)
-            # elif current_task == 3:
-                # users = edit_users(users)
+                print()
+                print("Returning to the Admin Menu Now.")
+                print()
+            elif current_task == 2:
+                users = view_users(users)
+                print()
+                print("Returning to the Admin Menu Now.")
+                print()
+            elif current_task == 3:
+                users = edit_users(users)
+                print()
+                print("Returning to the Admin Menu Now.")
+                print()
             else:
                 return
     else:
