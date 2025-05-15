@@ -1,3 +1,5 @@
+from easygui import *
+
 movies = {
     "Inception": {
         "title": "Inception",
@@ -84,9 +86,16 @@ def login(users, current_user, logged_in):
     return users, current_user, logged_in
 
 def search_movies(target, movies=dict):
+    found = False
     for i in movies:
         if movies[i] == target:
-            return True
+            print(target, " Found", sep="")
+            print(movies[target])
+            found = True
+    if found == False:
+        print("Movie Not Found")
+    return
+        
 
 def add_movie(movies=dict):
     while True:
@@ -186,59 +195,76 @@ def edit_users(users=dict):
         user_info = users[user]
         if user in users.keys():
             for item in user_info.keys():
-                print(item, ": ", )
+                print(item, ": ", user_info[item], sep="")
             while True:
-                change_id = input("What would you like to edit on ", user, "'s profile? ", sep="")
+                change_id = input(f"What would you like to edit on {user}'s profile? ")
                 if change_id in user_info.keys():
-                    change = input()
+                    change = input(f"What would you like to change {change_id} to? ")
+                    user_info[change_id] = change
+                    print("Changing Detail Now.")
+                    repeat = input("Is there any other changes you would like to make? (y/n)")
+                    if repeat == "n":
+                        break
+                else:
+                    print("Invalid item")
         else:
             print("User Not Found")
+        users[user] = user_info
+        return users
 
 
-def admin_account(users, movies, current_user):
-    if current_user == "admin":
+def admin_account(users, movies):
+    while True:
+        tasks = ["Add Movie [0]", "Edit Movie [1]", "View User details [2]", "Edit User details [3]", "Return to Main Menu [4]"]
+        print("Admin Tasks: ")
+        for i in tasks:
+            print(i)
+        current_task = 0
+        task_list = [add_movie, edit_movie, view_users, edit_users]
+        task_inputs = [movies, movies, users, users]
         while True:
-            tasks = ["Add Movie [0]", "Edit Movie [1]", "View User details [2]", "Edit User details [3]", "Return to Main Menu [4]"]
-            print("Admin Tasks: ")
-            for i in tasks:
-                print(i)
-            current_task = 0
-            while True:
-                current_task = input("Task id: ")
-                if current_task.isdigit():
-                    current_task = int(current_task)
-                    if current_task in range(0, 5):
-                        break
-                    else:
-                        print("Task Id Not Found")
+            current_task = input("Task id: ")
+            if current_task.isdigit():
+                current_task = int(current_task)
+                if current_task in range(0, 5):
+                    break
                 else:
-                    print("Invalid Task Id")
-
-            if current_task == 0:
-                movies = add_movie(movies)
-                print()
-                print("Returning to the Admin Menu Now.")
-                print()
-            elif current_task == 1:
-                movies = edit_movie(movies)
-                print()
-                print("Returning to the Admin Menu Now.")
-                print()
-            elif current_task == 2:
-                users = view_users(users)
-                print()
-                print("Returning to the Admin Menu Now.")
-                print()
-            elif current_task == 3:
-                users = edit_users(users)
-                print()
-                print("Returning to the Admin Menu Now.")
-                print()
+                    print("Task Id Not Found")
             else:
-                return
-    else:
-        print("You do not have permission to access this account")
+                print("Invalid Task Id")
+
+        if task_inputs[current_task] == movies:
+            task_list[current_task](task_inputs)
+        print()
+        print("Returning to the Admin Menu Now.")
+        print()
         return
 
-users, current_user, logged_in = login(users, current_user, logged_in)
-admin_account(users, movies, current_user)
+def user_account(users, movies, current_user):
+    while True:
+        print("Welcome to your user account, Below is a list of things that you can do in this account. To Select an option, just enter the id of that option to continue")
+        action_list = ["Find a Movie [0]", "Purchase a Movie Ticket [1]", "Write a review [2]"]
+        action = input("What would you like to do?")
+        if action.isdigit():
+            action = int(action)
+            if action == 0:
+                target = input("Which movie would you like to find? ")
+                search_movies(target, movies)
+            
+        else:
+            print("Invalid Id")
+
+def main(users, movies, current_user):
+    users, current_user, logged_in = login(users, current_user, logged_in)
+    if logged_in == True:
+        if current_user == "admin":
+            account = input("Would you like to access User or Admin account? ")
+            if account == "Admin":
+                admin_account(users, movies, current_user)
+            elif account == "User":
+                user_account(users, movies, current_user)
+        else:
+            user_account(users, movies, current_user)
+    return
+
+main(users, movies, current_user)
