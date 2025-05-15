@@ -95,7 +95,32 @@ def search_movies(target, movies=dict):
     if found == False:
         print("Movie Not Found")
     return
-        
+
+def buy_ticket(users=dict, movies=dict, current_user=str):
+    print("Available Movies:")
+    for movie in movies.keys():
+        print(movie)
+    while True:
+        selection = input("Which movie would you like to purchase tickets for? ")
+        if selection in movies.keys():
+            seats = "seats"
+            price = "price"
+            seats_available = int(movies[selection][seats])
+            ticket_price = int(movies[selection][price])
+            if seats_available > 0:
+                while True:
+                    seats_wanted = input("How many seats would you like to purchase? ")
+                    if seats_wanted.isdigit():
+                        seats_wanted = int(seats_wanted)
+                    else:
+                        print("Purchase Amount must be an Integer")
+            else:
+                retry = input("Unfortunately, this movie is already booked out. Would you like to purchase tickets for another movie? (y/n)")
+                if retry == "n":
+                    break
+        else:
+            print("Movie Not Found")
+    return users, movies
 
 def add_movie(movies=dict):
     while True:
@@ -226,8 +251,10 @@ def admin_account(users, movies):
             current_task = input("Task id: ")
             if current_task.isdigit():
                 current_task = int(current_task)
-                if current_task in range(0, 5):
+                if current_task in range(0, 4):
                     break
+                elif current_task == 4:
+                    return users, movies
                 else:
                     print("Task Id Not Found")
             else:
@@ -236,25 +263,28 @@ def admin_account(users, movies):
         if task_inputs[current_task] == movies:
             task_list[current_task](task_inputs)
         print()
-        print("Returning to the Admin Menu Now.")
+        print("Returning to the Main Menu Now.")
         print()
-        return
 
 def user_account(users, movies, current_user):
     while True:
         print("Welcome to your user account, Below is a list of things that you can do in this account. To Select an option, just enter the id of that option to continue")
         action_list = ["Find a Movie [0]", "Purchase a Movie Ticket [1]", "Write a review [2]"]
+        print(*action_list, sep=", ")
         action = input("What would you like to do?")
         if action.isdigit():
             action = int(action)
             if action == 0:
-                target = input("Which movie would you like to find? ")
+                print("Here is a list of the current viewing Movies: ")
+                print(*movies.keys(), sep=", ")
+                target = input("Which movie details would you like to find? ")
                 search_movies(target, movies)
-            
+            elif action == 1:
+                users, movies = buy_ticket(users, movies, current_user)
         else:
             print("Invalid Id")
 
-def main(users, movies, current_user):
+def main(users, movies, current_user, logged_in):
     users, current_user, logged_in = login(users, current_user, logged_in)
     if logged_in == True:
         if current_user == "admin":
@@ -267,4 +297,4 @@ def main(users, movies, current_user):
             user_account(users, movies, current_user)
     return
 
-main(users, movies, current_user)
+main(users, movies, current_user, logged_in)
