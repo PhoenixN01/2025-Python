@@ -47,43 +47,19 @@ current_user = ""
 logged_in = False
 
 
-def login(users, current_user, logged_in):
-    login_attempts = 0
-    yes_answers = ["y", "yes", "yeah", "yep"]
-    print("Please Enter Username and Password to begin.")
-    while login_attempts < 5:
-        username = input("Username: ")
-        if username in users:
-            password_attempts = 0
-            while password_attempts < 5:
-                password = input("Password: ")
-                if password == users[username]["password"]:
-                    print("Login Success")
-                    break
+def login(users, current_user=None, attempts=0, status=None):
+    if attempts < 5:
+        user_login = easygui.multpasswordbox(msg="Welcome! Please Login to Continue", title="Login", fields=["Username", "Password"])
+        if user_login[0] and user_login[1]:
+            if user_login[0] in users:
+                if user_login[1] == users[user_login[0]]:
+                    return users, user_login[0], True, "complete"
                 else:
-                    print("Password is Incorrect")
-                    password_attempts += 1
-            if password_attempts == 5:
-                print("You have entered your password incorrectly 5 times")
-                change_user = input("Would you like to change users?")
-                if change_user.lower() in yes_answers:
-                    login(users, current_user, logged_in)
-                    break
-                else:
-                    print("Goodbye.")
-                    logged_in = False
-                    return users, current_user, logged_in
-            elif password_attempts < 5:
-                current_user = username
-                print("Welcome ", current_user)
-                logged_in = True
-                break
-        else:
-            print("Username Not Found")
-            login_attempts += 1
-    if login_attempts == 5:
-        print("Login attempt Timeout. Please try again later")
-    return users, current_user, logged_in
+                    easygui.msgbox(msg="Incorrect Password")
+                    attempts += 1
+                    login(users, attempts)
+
+    return users, current_user, False
 
 def search_movies(movie_id, movies):
     found = False
@@ -138,7 +114,6 @@ def buy_ticket(users, movies, current_user):
     return users, movies
 
 def add_review(users, movies, current_user):
-    attempts = 0
     while True:
         print(movies.keys())
         movie_input = input("Which Movie Would you like to write a review for?")
