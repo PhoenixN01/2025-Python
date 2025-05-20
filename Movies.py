@@ -25,14 +25,14 @@ movies = {
     },
     "Joker": {
         "Title": "Joker",
-        "genre": "Drama",
-        "duration": 122,
-        "seats": 100,
-        "rating": 8.0,
-        "reviews": {
+        "Genre": "Drama",
+        "Duration": 122,
+        "Seats": 100,
+        "Rating": 8.0,
+        "Reviews": {
             1: {"name": "Jason", "rating": 8.0, "comment": "Dark and intense."},
         },
-        "price": 12,
+        "Price": 12,
     },
 }
  
@@ -136,6 +136,28 @@ def buy_ticket(users, movies, current_user):
         else:
             print("Movie Not Found")
     return users, movies
+
+def add_review(users, movies, current_user):
+    attempts = 0
+    while True:
+        print(movies.keys())
+        movie_input = input("Which Movie Would you like to write a review for?")
+        if movie_input in movies:
+            user_rating = input("What would you like to rate this movie out of 10.0?")
+            while True:
+                if user_rating.isdigit():
+                    user_rating = float(user_rating)
+                    if user_rating in range(0, 10.1, 0.1):
+                        user_review = input("What would you like to say about this movie? ")
+                        user_review_list = {"name": current_user, "rating": user_rating, "comment": user_review}
+                        movies[movie_input]["Reviews"].append(user_review_list)
+                        total_rating = 0.0
+                        for item in movies[movie_input]["Reviews"]:
+                            total_rating += item["rating"]
+                        new_rating = total_rating / len(movies[movie_input]["Reviews"])
+                        movies[movie_input]["Rating"] = new_rating
+                else:
+                    print()
 
 def add_movie(movies):
     while True:
