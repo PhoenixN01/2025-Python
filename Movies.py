@@ -47,20 +47,26 @@ current_user = ""
 logged_in = False
 
 
-def login(users, current_user=None, attempts=0, status=None):
-    if attempts < 5:
+def login(users, current_user=None, logged_in=False, attempts=0):
+    if logged_in == True:
+        return users, current_user, 
+    elif attempts < 5:
         user_login = easygui.multpasswordbox(msg="Welcome! Please Login to Continue", title="Login", fields=["Username", "Password"])
         if user_login[0] and user_login[1]:
             if user_login[0] in users:
-                if user_login[1] == users[user_login[0]]:
-                    return users, user_login[0], True, "complete"
-                else:
-                    easygui.msgbox(msg="Incorrect Password")
-                    attempts += 1
-                    login(users, attempts)
-
-    return users, current_user, False
-
+                if user_login[1] == users[user_login[0]]["password"]:
+                    current_user = user_login[0]
+                    easygui.msgbox(msg="Login Successful")
+                    return users, user_login[0], True
+            else:
+                easygui.msgbox(msg="Incorrect Username or Password")
+                attempts += 1
+                users, attempts = login(users, None, False, attempts)
+        else:
+            login(users)
+    else:
+        easygui.msgbox(msg="Login Timeout. Exitting Programme...")
+        return users, current_user
 def search_movies(movie_id, movies):
     found = False
     for i in movies:
