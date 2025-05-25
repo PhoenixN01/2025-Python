@@ -4,7 +4,7 @@ movies = {
     "Inception": {
         "Title": "Inception",
         "Genre": "Sci-Fi",
-        "Duration": 148,
+     "Duration": 148,
         "Seats": 85,
         "Rating": 6,
         "Reviews": {
@@ -14,11 +14,11 @@ movies = {
     },
     "Interstellar": {
         "Title": "Interstellar",
-        "genre": "Sci-Fi",
-        "duration": 169,
-        "seats": 110,
-        "rating": 4.6,
-        "reviews": {
+        "Genre": "Sci-Fi",
+        "Duration": 169,
+        "Seats": 110,
+        "Rating": 4.6,
+        "Reviews": {
             1: {"name": "Jane", "rating": 4.6, "comment": "Mind-expanding!"},
         },
         "price": 13,
@@ -46,44 +46,91 @@ users = {
 current_user = ""
 logged_in = False
 
+def error_msg(msg):
+    easygui.msgbox(msg=msg, title="Error")
+    return
 
-def login(users, current_user=None, logged_in=False, attempts=0):
+def login(users, current_user="", logged_in=False, attempts=0):
     if logged_in == True:
-        return users, current_user, 
-    elif attempts < 5:
-        user_login = easygui.multpasswordbox(msg="Welcome! Please Login to Continue", title="Login", fields=["Username", "Password"])
-        if user_login[0] and user_login[1]:
-            if user_login[0] in users:
-                if user_login[1] == users[user_login[0]]["password"]:
-                    current_user = user_login[0]
-                    easygui.msgbox(msg="Login Successful")
-                    return users, user_login[0], True
+        return users, current_user, logged_in, attempts
+    while attempts < 5:
+        error = ""
+        user_name = easygui.enterbox(msg="Welcome! Please Enter Username to continue", title="Login")
+        if user_name is None:
+            break
+        elif user_name:
+            if user_name in users.keys():
+                password = easygui.passwordbox(msg="Enter Password", title="Login")
+                if password is None:
+                    continue
+                elif password:
+                    if password == users[user_name]["password"]:
+                        easygui.msgbox("Login Successful")
+                        return users, user_name, True, attempts
+                    else:
+                        error = "Incorrect Password"
+                else:
+                    error = "Missing: Password"
             else:
-                easygui.msgbox(msg="Incorrect Username or Password")
-                attempts += 1
-                users, attempts = login(users, None, False, attempts)
+                error = "Username Not Found"
         else:
-            login(users)
+            error = "Missing: Username"
+        error_msg(error)
+        attempts += 1
+        users, current_user, logged_in, attempts = login(users, current_user, logged_in, attempts)
     else:
         easygui.msgbox(msg="Login Timeout. Exitting Programme...")
-        return users, current_user
-def search_movies(movie_id, movies):
-    found = False
-    for i in movies:
-        if movies[i] == movie_id:
-            print(movie_id, " Found", sep="")
-            print(movies[movie_id])
-            found = True
-    if found == False:
-        print("Movie Not Found")
-    return movie_id, movies
+    return users, current_user, logged_in, attempts
+
+def output_movies(movies, mode, movie_id=""):  
+    if movie_id == "":
+        msg_lines = ["|-- Showing All Movies --|"]
+        for title, details in movies:
+            msg_lines.append(f"\n{title}: ")
+            for detail, info in details:
+                if detail == "Reviews":
+                    msg_lines.append(f"\t{detail}")
+                    for item, response in detail:
+                        msg_lines.append(f"\t\t{item}: {response}")
+                else:
+                    msg_lines.append(f"\t{detail}: {info}")
+    else:
+        msg_lines = [f"|-- Showing: {movie_id} --|"]
+        for detail, info in movies[movie_id]:
+            if detail == "Reviews":
+                msg_lines.append(f"\t{detail}")
+                for item, response in detail:
+                    msg_lines.append(f"\t\t{item}: {response}")
+            else:
+                msg_lines.append(f"\t{detail}: {info}")
+    msg = "\n".join(msg_lines)
+    if mode == "Print":
+        easygui.msgbox(msg)
+        return
+    elif mode == "Return":
+        return msg
+
+def search_movies(movies):
+    sep = ", "
+    movie_options = sep.join(list(movies.keys()))
+    msg = f"Movie Options are: {movie_options}\nWhat movie would you like to find?"
+    movie_id = easygui.enterbox(msg, title="Find a Movie")
+    if movie_id is None:
+        return
+    else:
+        found = False
+        for movie in movies.keys():
+            if movie_id.lower() == str(movie).lower():
+                found = True
+                output_movies(movies, "Print", movie)
+        if found == False:
+            error_msg("Movie Not Found")
+    return
 
 def buy_ticket(users, movies, current_user):
-    print("Available Movies:")
-    for movie in movies.keys():
-        print(movie)
+    msg = output_movies(movies, "Return")
     while True:
-        selection = input("Which movie would you like to purchase tickets for? ")
+        selection = ("Which movie would you like to purchase tickets for? ")
         if selection in movies.keys():
             seats_available = int(movies[selection]["Seats"])
             ticket_price = int(movies[selection]["Price"])
@@ -119,6 +166,22 @@ def buy_ticket(users, movies, current_user):
             print("Movie Not Found")
     return users, movies
 
+def check_type(input_value):
+    try:
+        int(input_value)
+        return "int"
+    except ValueError:
+        pass
+
+    try:
+        float(input_value)
+        return "float"
+    except ValueError:
+        pass
+
+    return "str"
+            
+
 def add_review(users, movies, current_user):
     while True:
         print(movies.keys())
@@ -126,9 +189,9 @@ def add_review(users, movies, current_user):
         if movie_input in movies:
             user_rating = input("What would you like to rate this movie out of 10.0?")
             while True:
-                if user_rating.isdigit():
+                if check_type(user_rating) == "float":
                     user_rating = float(user_rating)
-                    if user_rating in range(0, 10.1, 0.1):
+                    if 0.0 <= user_rating <= 10.0:
                         user_review = input("What would you like to say about this movie? ")
                         user_review_list = {"name": current_user, "rating": user_rating, "comment": user_review}
                         movies[movie_input]["Reviews"].append(user_review_list)
@@ -140,6 +203,11 @@ def add_review(users, movies, current_user):
                 else:
                     print()
 
+def view_details(users, current_user):
+    msg = f"Username: {current_user}"
+    for key, value in users[current_user]:
+        msg += f"{key}: {value}"
+    easygui.msgbox(msg, title="User Details")
 def add_movie(movies):
     while True:
 
@@ -282,39 +350,48 @@ def admin_account(users, movies):
 
 def user_account(users, movies, current_user):
     while True:
-        print("Welcome to your user account, Below is a list of things that you can do in this account. To Select an option, just enter the id of that option to continue")
-        action_list = ["Find a Movie [0]", "Purchase a Movie Ticket [1]", "Write a review [2]", "View Account Details [3]", "Exit [4]"]
-        print(*action_list, sep=", ")
-        action = input("What would you like to do?")
-        if action.isdigit():
-            action = int(action)
-            if action == 0:
-                print("Here is a list of the current viewing Movies: ")
-                print(*movies.keys(), sep=", ")
-                movie_id = input("Which movie details would you like to find (select movie by its id)? ")
-                movie_id, movies = search_movies(movie_id, movies)
-                print("Returning to the User Menu...")
-            elif action == 1:
-                users, movies = buy_ticket(users, movies, current_user)
-                print("Returning to the User Menu...")
-            elif action == 4:
-                return users, movies, current_user
-        else:
-            print("Invalid Id")
-        break
+        action_list = [
+            "Find a Movie [1]", 
+            "Purchase a Movie Ticket [2]", 
+            "Write a review [3]", 
+            "View Account Details [4]", 
+            "Logout [5]"
+            ]
+        action = easygui.buttonbox(
+            msg="Welcome to your user account, Below is a list of things that you can do in this account. \n\nSelect an option to continue",
+            title="User Menu",
+            choices=action_list
+            )
+        function_list = [
+            lambda: search_movies(movies), 
+            lambda: buy_ticket(users, movies, current_user), 
+            lambda: add_review(users, movies, current_user), 
+            lambda: view_details(users, current_user)
+            ]
+        if (action is None) or (action is action_list[-1]):
+            break
+        if action in action_list:
+            action = str(action)
+            index = action_list.index(action)
+            function_list[index]()
+
     return users, movies, current_user
 
 def main(users, movies, current_user, logged_in):
-    users, current_user, logged_in = login(users, current_user, logged_in)
-    if logged_in == True:
-        if current_user == "admin":
-            account = input("Would you like to access User or Admin account? ")
-            if account == "Admin":
-                users, movies = admin_account(users, movies)
-            elif account == "User":
-                users, movies, current_user = user_account(users, movies, current_user)
+    while True:
+        attempts = 0
+        users, current_user, logged_in, attempts = login(users)
+        if logged_in == True and attempts < 5:
+            if current_user == "admin":
+                account = input("Would you like to access User or Admin account? ")
+                if account == "Admin":
+                    users, movies = admin_account(users, movies)
+                elif account == "User":
+                    users, movies, current_user = user_account(users, movies, current_user)
+            else:
+                user_account(users, movies, current_user)
         else:
-            user_account(users, movies, current_user)
+            break
     return
 
 main(users, movies, current_user, logged_in)
