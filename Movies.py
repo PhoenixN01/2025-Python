@@ -4,7 +4,7 @@ movies = {
     "Inception": {
         "Title": "Inception",
         "Genre": "Sci-Fi",
-     "Duration": 148,
+        "Duration": 148,
         "Seats": 85,
         "Rating": 6,
         "Reviews": {
@@ -21,7 +21,7 @@ movies = {
         "Reviews": {
             1: {"name": "Jane", "rating": 4.6, "comment": "Mind-expanding!"},
         },
-        "price": 13,
+        "Price": 13,
     },
     "Joker": {
         "Title": "Joker",
@@ -30,17 +30,17 @@ movies = {
         "Seats": 100,
         "Rating": 8.0,
         "Reviews": {
-            1: {"name": "Jason", "rating": 8.0, "comment": "Dark and intense."},
+            1: {"Name": "Jason", "Rating": 8.0, "Comment": "Dark and intense."},
         },
         "Price": 12,
     },
 }
  
 users = {
-    "admin": {"password": "unbirvwb", "balance": 999999999999.99},
-    "Billy": {"password": "billy", "balance": 1250.50},
-    "Bobby": {"password": "bobby", "balance": 820.00},
-    "Bo": {"password": "bo", "balance": 312.75},
+    "admin": {"Password": "unbirvwb", "Balance": 999999999999.99},
+    "Billy": {"Password": "billy", "Balance": 1250.50},
+    "Bobby": {"Password": "bobby", "Balance": 820.00},
+    "Bo": {"Password": "bo", "Balance": 312.75},
 }
 
 current_user = ""
@@ -49,122 +49,6 @@ logged_in = False
 def error_msg(msg):
     easygui.msgbox(msg=msg, title="Error")
     return
-
-def login(users, current_user="", logged_in=False, attempts=0):
-    if logged_in == True:
-        return users, current_user, logged_in, attempts
-    while attempts < 5:
-        error = ""
-        user_name = easygui.enterbox(msg="Welcome! Please Enter Username to continue", title="Login")
-        if user_name is None:
-            break
-        elif user_name:
-            if user_name in users.keys():
-                password = easygui.passwordbox(msg="Enter Password", title="Login")
-                if password is None:
-                    continue
-                elif password:
-                    if password == users[user_name]["password"]:
-                        easygui.msgbox("Login Successful")
-                        return users, user_name, True, attempts
-                    else:
-                        error = "Incorrect Password"
-                else:
-                    error = "Missing: Password"
-            else:
-                error = "Username Not Found"
-        else:
-            error = "Missing: Username"
-        error_msg(error)
-        attempts += 1
-        users, current_user, logged_in, attempts = login(users, current_user, logged_in, attempts)
-    else:
-        easygui.msgbox(msg="Login Timeout. Exitting Programme...")
-    return users, current_user, logged_in, attempts
-
-def output_movies(movies, mode, movie_id=""):  
-    if movie_id == "":
-        msg_lines = ["|-- Showing All Movies --|"]
-        for title, details in movies:
-            msg_lines.append(f"\n{title}: ")
-            for detail, info in details:
-                if detail == "Reviews":
-                    msg_lines.append(f"\t{detail}")
-                    for item, response in detail:
-                        msg_lines.append(f"\t\t{item}: {response}")
-                else:
-                    msg_lines.append(f"\t{detail}: {info}")
-    else:
-        msg_lines = [f"|-- Showing: {movie_id} --|"]
-        for detail, info in movies[movie_id]:
-            if detail == "Reviews":
-                msg_lines.append(f"\t{detail}")
-                for item, response in detail:
-                    msg_lines.append(f"\t\t{item}: {response}")
-            else:
-                msg_lines.append(f"\t{detail}: {info}")
-    msg = "\n".join(msg_lines)
-    if mode == "Print":
-        easygui.msgbox(msg)
-        return
-    elif mode == "Return":
-        return msg
-
-def search_movies(movies):
-    sep = ", "
-    movie_options = sep.join(list(movies.keys()))
-    msg = f"Movie Options are: {movie_options}\nWhat movie would you like to find?"
-    movie_id = easygui.enterbox(msg, title="Find a Movie")
-    if movie_id is None:
-        return
-    else:
-        found = False
-        for movie in movies.keys():
-            if movie_id.lower() == str(movie).lower():
-                found = True
-                output_movies(movies, "Print", movie)
-        if found == False:
-            error_msg("Movie Not Found")
-    return
-
-def buy_ticket(users, movies, current_user):
-    msg = output_movies(movies, "Return")
-    while True:
-        selection = ("Which movie would you like to purchase tickets for? ")
-        if selection in movies.keys():
-            seats_available = int(movies[selection]["Seats"])
-            ticket_price = int(movies[selection]["Price"])
-            user_balance = users[current_user]["Balance"]
-            if seats_available > 0:
-                while True:
-                    seats_wanted = input("How many seats would you like to purchase? ")
-                    if seats_wanted.isdigit():
-                        seats_wanted = int(seats_wanted)
-                        if seats_wanted <= seats_available:
-                            booking_price = seats_wanted * ticket_price
-                            if user_balance >= booking_price:
-                                user_balance -= booking_price
-                                seats_available -= seats_wanted
-                                print("Purchase Successful")
-                                print("Would you like to purchase some more tickets?")
-                                movies[selection]["Seats"] = seats_available
-                                users[current_user]["Balance"] = user_balance
-                            else:
-                                print(f"You have insufficient Funds, you need ${booking_price} to book this amount of seats. Current Balance: ${user_balance}")
-                                exit = input("Would you like to try again? (y/n)")
-                                if not exit == "y":
-                                    break
-                        else:
-                            print(f"There are only {seats_available} seats available")
-                    else:
-                        print("Purchase Amount must be an Integer")
-            else:
-                retry = input("Unfortunately, this movie is already booked out. Would you like to purchase tickets for another movie? (y/n)")
-                if retry == "n":
-                    break
-        else:
-            print("Movie Not Found")
-    return users, movies
 
 def check_type(input_value):
     try:
@@ -180,7 +64,174 @@ def check_type(input_value):
         pass
 
     return "str"
-            
+
+def login(users, current_user="", logged_in=False, attempts=0):
+    if logged_in == True:
+        return users, current_user, logged_in, attempts
+    while attempts < 5:
+        error = ""
+        user_name = easygui.enterbox(msg="Welcome! Please Enter Username to continue", title="Login")
+        if user_name is None:
+            break
+        elif user_name:
+            if user_name in users.keys():
+                password = easygui.passwordbox(msg="Enter Password", title="Login")
+                if password is None:
+                    continue
+                elif password:
+                    if password == users[user_name]["Password"]:
+                        easygui.msgbox("Login Successful")
+                        return users, user_name, True, attempts
+                    else:
+                        error = "Incorrect Password"
+                else:
+                    error = "Missing: Password"
+            else:
+                error = "Username Not Found"
+        else:
+            error = "Missing: Username"
+        error_msg(error)
+        attempts += 1
+    else:
+        easygui.msgbox(msg="Login Timeout. Exitting Programme...")
+    return users, current_user, logged_in, attempts
+
+def output_movies(movies, mode, movie_id=""):  
+    if movie_id == "":
+        msg_lines = ["|-- Showing All Movies --|"]
+        for title, details in movies.items():
+            msg_lines.append(f"\n{title}: ")
+            for detail, info in details.items():
+                if detail == "Reviews":
+                    msg_lines.append(f"\t{detail}")
+                    for item, response in info.items():
+                        msg_lines.append(f"\t\t{item}: {response}")
+                else:
+                    msg_lines.append(f"\t{detail}: {info}")
+    else:
+        msg_lines = [f"|-- Showing: {movie_id} --|"]
+        for detail, info in movies[movie_id].items():
+            if detail == "Reviews":
+                msg_lines.append(f"\t{detail}")
+                for item, response in info.items():
+                    msg_lines.append(f"\t\t{item}: {response}")
+            else:
+                msg_lines.append(f"\t{detail}: {info}")
+    msg = "\n".join(msg_lines)
+    if mode == "Print":
+        easygui.msgbox(msg)
+        return
+    elif mode == "Return":
+        return msg
+
+def search_movies(movies, request=""):
+    movie_options = list(movies.keys())
+    msg = "What movie would you like to find?"
+
+    movie_id = easygui.enterbox(msg, title="Find a Movie")
+
+    if movie_id is None:
+        return
+    
+    else:
+        for movie in movie_options:
+            if movie_id.lower() == movie.lower():
+                if request == "print":
+                    output_movies(movies, "Print", movie)
+                    return
+                
+                else:
+                    return movie_id
+        error_msg("Movie Not Found")
+    return
+
+def buy_ticket(users, movies, current_user):
+    user_balance = users[current_user]["Balance"]
+
+    msg = f"===  Here is a List of currently Viewing Movies  ===\n\n\nYour Current Balance: {user_balance}\n\nSelect one of the Movies to Continue:\n\n"
+    msg += f"{output_movies(movies, "Return")}"
+    title = "Purchase Movie Tickets"
+    choices = list(movies.keys())
+    choices.append("Exit")
+
+    while True:
+        selection = easygui.buttonbox(msg, title, choices)
+
+        if selection is None or selection == "Exit":
+            return
+        
+        else:
+            if selection in movies:
+                seats_available = movies[selection]["Seats"]
+                ticket_price = movies[selection]["Price"]
+                if seats_available > 0:
+                    seats_wanted = easygui.enterbox(msg="How many seats would you like to purchase?", title="Purchase Tickets")
+                    if seats_wanted is None:
+                        return
+                    
+                    elif check_type(seats_wanted) != "int":
+                        error_msg("Invalid Input, Please enter a valid number of seats to purchase")
+                        continue
+
+                    elif int(seats_wanted) < 1:
+                        error_msg("You must purchase at least 1 seat")
+                        continue
+
+                    else:
+                        seats_wanted = int(seats_wanted)
+                        user_balance = users[current_user]["Balance"]
+                        booking_price = float(seats_wanted * ticket_price)
+
+                        if seats_wanted > seats_available:
+                            error_msg(f"There are only {seats_available} seats available for {selection}. Please enter a valid number of seats to purchase.")
+                            continue
+
+                        if seats_wanted > user_balance // ticket_price:
+                            error_msg(f"You cannot afford {seats_wanted} tickets for {selection}. You can only afford {user_balance // ticket_price} tickets at ${ticket_price} each.")
+                            continue
+
+                        if user_balance >= booking_price:
+                            user_balance -= booking_price
+                            seats_available -= seats_wanted
+                            confirm_purchase = easygui.ynbox(msg=f"You have selected {seats_wanted} tickets for {selection} at a total cost of ${booking_price}. \n\nYour new balance will be ${user_balance}. \n\n\nWould you like to confirm your purchase?", title="Purchase Confirmation")
+
+                            if (confirm_purchase is None) or (confirm_purchase == False):
+                                easygui.msgbox("Purchase Cancelled")
+                                return
+                            
+                            elif confirm_purchase == True:
+                                movies[selection]["Seats"] = seats_available
+                                users[current_user]["Balance"] = user_balance
+                                easygui.msgbox(f"Purchase Successful, Your new balance is ${user_balance}.")
+                                continue_purchase = easygui.ynbox(msg="Would you like to purchase tickets for another movie?", title="Continue Purchase")
+                                if continue_purchase is None or continue_purchase == False:
+                                    return users, movies
+                                else:
+                                    continue
+                        else:
+                            exit = easygui.ynbox(msg=f"You have insufficient Funds, you need ${booking_price} to book this amount of seats. Current Balance: ${user_balance}\n\nWould you like to return to the main menu?", title="Insufficient Funds")
+                            if exit is None:
+                                return users, movies
+                            
+                            elif exit == True:
+                                return users, movies
+                            
+                            else:
+                                continue
+                else:
+                    try_again = easygui.ynbox("Unfortunately, this movie is fully booked out. Would you like to try another movie?", title="Movie Fully Booked")
+                    if (try_again is None) or (try_again == False):
+                        return users, movies
+                    
+                    elif try_again == True:
+                        continue
+            else:
+                retry = easygui.ynbox("Unfortunately, this movie is already booked out. Would you like to purchase tickets for another movie?", title="Movie Not Found")
+                if (retry is None) or (retry == False):
+                    return users, movies
+                
+                elif retry == True:
+                    continue
 
 def add_review(users, movies, current_user):
     while True:
@@ -205,7 +256,7 @@ def add_review(users, movies, current_user):
 
 def view_details(users, current_user):
     msg = f"Username: {current_user}"
-    for key, value in users[current_user]:
+    for key, value in users[current_user].items():
         msg += f"{key}: {value}"
     easygui.msgbox(msg, title="User Details")
 def add_movie(movies):
@@ -357,23 +408,38 @@ def user_account(users, movies, current_user):
             "View Account Details [4]", 
             "Logout [5]"
             ]
+        
         action = easygui.buttonbox(
             msg="Welcome to your user account, Below is a list of things that you can do in this account. \n\nSelect an option to continue",
             title="User Menu",
             choices=action_list
             )
+        
+        action = str(action)
+        index = action_list.index(action)
+
+        if (action is "None") or (index == len(action_list) - 1):
+            break
+
         function_list = [
-            lambda: search_movies(movies), 
+            lambda: search_movies(movies, "print"), 
             lambda: buy_ticket(users, movies, current_user), 
             lambda: add_review(users, movies, current_user), 
             lambda: view_details(users, current_user)
             ]
-        if (action is None) or (action is action_list[-1]):
-            break
+        variable_list = [
+            None,
+            [users, movies],
+            [users, movies],
+            users
+        ]
+
         if action in action_list:
             action = str(action)
-            index = action_list.index(action)
-            function_list[index]()
+            if variable_list[index] is None:
+                function_list[index]()
+            else:
+                variable_list[index] = function_list[index]()
 
     return users, movies, current_user
 
