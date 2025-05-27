@@ -8,7 +8,7 @@ movies = {
         "Seats": 85,
         "Rating": 6,
         "Reviews": {
-            1: {"name": "Adam", "rating": 6, "comment": "Amazing plot!"},
+            1: {"Name": "Adam", "Rating": 6, "Comment": "Amazing plot!"},
         },
         "Price": 12,
     },
@@ -19,7 +19,7 @@ movies = {
         "Seats": 110,
         "Rating": 4.6,
         "Reviews": {
-            1: {"name": "Jane", "rating": 4.6, "comment": "Mind-expanding!"},
+            1: {"Name": "Jane", "Rating": 4.6, "Comment": "Mind-expanding!"},
         },
         "Price": 13,
     },
@@ -103,18 +103,24 @@ def output_movies(movies, mode, movie_id=""):
             msg_lines.append(f"\n{title}: ")
             for detail, info in details.items():
                 if detail == "Reviews":
-                    msg_lines.append(f"\t{detail}")
-                    for item, response in info.items():
-                        msg_lines.append(f"\t\t{item}: {response}")
+                    msg_lines.append(f"\t{detail}:")
+                    for review in info.values():
+                        movie_review = []
+                        for item, response in review.items():
+                            movie_review.append(f"\t\t{item}: {response}")
+                    msg_lines.append("\n".join(movie_review))
                 else:
                     msg_lines.append(f"\t{detail}: {info}")
     else:
         msg_lines = [f"|-- Showing: {movie_id} --|"]
         for detail, info in movies[movie_id].items():
             if detail == "Reviews":
-                msg_lines.append(f"\t{detail}")
-                for item, response in info.items():
-                    msg_lines.append(f"\t\t{item}: {response}")
+                msg_lines.append(f"\t{detail}:")
+                for review in info.values():
+                    movie_review = []
+                    for item, response in review.items():
+                        movie_review.append(f"\t\t{item}: {response}")
+                msg_lines.append("\n".join(movie_review))
             else:
                 msg_lines.append(f"\t{detail}: {info}")
     msg = "\n".join(msg_lines)
@@ -136,7 +142,7 @@ def search_movies(movies, request=""):
     else:
         for movie in movie_options:
             if movie_id.lower() == movie.lower():
-                if request == "print":
+                if request == "Print":
                     output_movies(movies, "Print", movie)
                     return
                 
@@ -148,8 +154,8 @@ def search_movies(movies, request=""):
 def buy_ticket(users, movies, current_user):
     user_balance = users[current_user]["Balance"]
 
-    msg = f"===  Here is a List of currently Viewing Movies  ===\n\n\nYour Current Balance: {user_balance}\n\nSelect one of the Movies to Continue:\n\n"
-    msg += f"{output_movies(movies, "Return")}"
+    msg = f"===  Here is a List of currently Viewing Movies  ===\n\n\nYour Current Balance: ${user_balance}\n\nSelect one of the Movies to Continue:\n\n"
+    msg += output_movies(movies, "Return")
     title = "Purchase Movie Tickets"
     choices = list(movies.keys())
     choices.append("Exit")
@@ -164,8 +170,16 @@ def buy_ticket(users, movies, current_user):
             if selection in movies:
                 seats_available = movies[selection]["Seats"]
                 ticket_price = movies[selection]["Price"]
+                user_balance = users[current_user]["Balance"]
                 if seats_available > 0:
-                    seats_wanted = easygui.enterbox(msg="How many seats would you like to purchase?", title="Purchase Tickets")
+
+                    msg_lines = []
+                    msg_lines.append(f"Seats Available: {seats_available}")
+                    msg_lines.append(f"Ticket Price: {ticket_price}")
+                    msg_lines.append(f"Current Balance: {user_balance}")
+                    msg = "\n".join(msg_lines)
+                    msg += "\n\nHow many seats would you like to purchase?"
+                    seats_wanted = easygui.enterbox(msg, title="Purchase Tickets")
                     if seats_wanted is None:
                         return
                     
@@ -179,7 +193,6 @@ def buy_ticket(users, movies, current_user):
 
                     else:
                         seats_wanted = int(seats_wanted)
-                        user_balance = users[current_user]["Balance"]
                         booking_price = float(seats_wanted * ticket_price)
 
                         if seats_wanted > seats_available:
@@ -415,14 +428,17 @@ def user_account(users, movies, current_user):
             choices=action_list
             )
         
+        if action == None:
+            break
+
         action = str(action)
         index = action_list.index(action)
 
-        if (action is "None") or (index == len(action_list) - 1):
+        if index == len(action_list) - 1:
             break
 
         function_list = [
-            lambda: search_movies(movies, "print"), 
+            lambda: search_movies(movies, "Print"), 
             lambda: buy_ticket(users, movies, current_user), 
             lambda: add_review(users, movies, current_user), 
             lambda: view_details(users, current_user)
@@ -436,7 +452,7 @@ def user_account(users, movies, current_user):
 
         if action in action_list:
             action = str(action)
-            if variable_list[index] is None:
+            if variable_list[index] == None:
                 function_list[index]()
             else:
                 variable_list[index] = function_list[index]()
